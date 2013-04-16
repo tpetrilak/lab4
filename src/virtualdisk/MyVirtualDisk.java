@@ -8,16 +8,25 @@ import java.util.Queue;
 import common.Constants.DiskOperationType;
 
 import dblockcache.DBuffer;
+import dfs.MyDFS;
 
 public class MyVirtualDisk extends VirtualDisk {
 
+    private static MyVirtualDisk instance = null;
     private Queue<DBuffer> dBufferQ;
     private Queue<DiskOperationType> operationQ;
 
-    public MyVirtualDisk(String volName, boolean format) throws IOException, FileNotFoundException {
-	super(volName, format);
+    public MyVirtualDisk() throws IOException, FileNotFoundException {
+	super();
 	dBufferQ = new LinkedList<DBuffer>();
 	operationQ = new LinkedList<DiskOperationType>();
+    }
+
+    public static MyVirtualDisk getInstance() throws FileNotFoundException, IOException {
+	if (instance == null) {
+	    return new MyVirtualDisk();
+	}
+	return instance;
     }
 
     @Override
