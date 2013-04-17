@@ -4,59 +4,87 @@ import java.util.List;
 
 import common.Constants;
 import common.DFileID;
+import dblockcache.DBufferCache;
 
-public abstract class DFS {
+public class DFS {
 		
 	private boolean _format;
 	private String _volName;
+	
+	private static DFS instance = null;
+	private DBufferCache myBufferCache;
 
 	/* 
 	 * @volName: Explicitly overwrite volume name
 	 * @format: If format is true, the system should earse the underlying disk contents and reinialize the volume.
 	 */
 
-	DFS(String volName, boolean format) {
+	private DFS(String volName, boolean format) {
 		_volName = volName;
 		_format = format;
+		myBufferCache = new DBufferCache(Constants.NUM_OF_CACHE_BLOCKS);
+		//TODO DFS should read in all the INodes upon construction and then store them so it does not have to read every time.
 	}
 
-	DFS(boolean format) {
+	private DFS(boolean format) {
 		this(Constants.vdiskName,format);
 	}
 
-	DFS() {
+	private DFS() {
 		this(Constants.vdiskName,false);
+	}
+	
+	public static DFS getInstance()
+	{
+		if(instance == null)
+		{
+			return new DFS();
+		}
+		return instance;
 	}
 
 	/* Initialize all the necessary structures with sizes as specified in the common/Constants.java */
-	public abstract void init();
+	public  void init() {
+	}
 
 	/* creates a new DFile and returns the DFileID, which is useful to uniquely identify the DFile*/
-	public abstract DFileID createDFile();
+	public  DFileID createDFile() {
+		return null;
+	}
 	
 	/* destroys the file specified by the DFileID */
-	public abstract void destroyDFile(DFileID dFID);
+	public void destroyDFile(DFileID dFID) {
+	}
 
 	/*
 	 * reads the file dfile named by DFileID into the buffer starting from the
 	 * buffer offset startOffset; at most count bytes are transferred
 	 */
-	public abstract int read(DFileID dFID, byte[] buffer, int startOffset, int count);
+	public  int read(DFileID dFID, byte[] buffer, int startOffset, int count) {
+		return 0;
+	}
 	
 	/*
 	 * writes to the file specified by DFileID from the buffer starting from the
 	 * buffer offset startOffset; at most count bytes are transferred
 	 */
-	public abstract int write(DFileID dFID, byte[] buffer, int startOffset, int count);
+	public  int write(DFileID dFID, byte[] buffer, int startOffset, int count) {
+		return 0;
+	}
 	
 	/* returns the size in bytes of the file indicated by DFileID. */
-	public abstract int sizeDFile(DFileID dFID);
+	public int sizeDFile(DFileID dFID) {
+		return 0;
+	}
 
 	/* 
 	 * List all the existing DFileIDs in the volume
 	 */
-	public abstract List<DFileID> listAllDFiles();
+	public List<DFileID> listAllDFiles() {
+		return null;
+	}
 
 	/* Write back all dirty blocks to the volume, and wait for completion. */
-	public abstract void sync();
+	public void sync() {
+	}
 }

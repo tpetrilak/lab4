@@ -1,4 +1,5 @@
 package virtualdisk;
+
 /*
  * VirtualDisk.java
  *
@@ -9,22 +10,29 @@ package virtualdisk;
 import java.io.RandomAccessFile;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import common.Constants;
 import common.Constants.DiskOperationType;
 import dblockcache.DBuffer;
+import dfs.DFS;
 
-public abstract class VirtualDisk implements IVirtualDisk {
+public class VirtualDisk implements IVirtualDisk, Runnable {
 
 	private String _volName;
 	private RandomAccessFile _file;
 	private int _maxVolSize;
+	
+	private static VirtualDisk instance = null;
+	private Queue<DBuffer> dBufferQ;
+	private Queue<DiskOperationType> operationQ;
 
 	/*
 	 * VirtualDisk Constructors
 	 */
-	public VirtualDisk(String volName, boolean format) throws FileNotFoundException,
-			IOException {
+	public VirtualDisk(String volName, boolean format)
+			throws FileNotFoundException, IOException {
 
 		_volName = volName;
 		_maxVolSize = Constants.BLOCK_SIZE * Constants.NUM_OF_BLOCKS;
@@ -42,30 +50,35 @@ public abstract class VirtualDisk implements IVirtualDisk {
 		 * set the length.
 		 */
 		_file.setLength(Constants.BLOCK_SIZE * Constants.NUM_OF_BLOCKS);
-		if(format) {
+		if (format) {
 			formatStore();
 		}
+		dBufferQ = new LinkedList<DBuffer>();
+		operationQ = new LinkedList<DiskOperationType>();
 		/* Other methods as required */
 	}
-	
+
 	public VirtualDisk(boolean format) throws FileNotFoundException,
-	IOException {
+			IOException {
 		this(Constants.vdiskName, format);
 	}
-	
-	public VirtualDisk() throws FileNotFoundException,
-	IOException {
+
+	public VirtualDisk() throws FileNotFoundException, IOException {
 		this(Constants.vdiskName, false);
 	}
+	
 
 	/*
-	 * Start an asynchronous request to the underlying device/disk/volume. 
-	 * -- buf is an DBuffer object that needs to be read/write from/to the volume.	
-	 * -- operation is either READ or WRITE  
+	 * Start an asynchronous request to the underlying device/disk/volume. --
+	 * buf is an DBuffer object that needs to be read/write from/to the volume.
+	 * -- operation is either READ or WRITE
 	 */
-	public abstract void startRequest(DBuffer buf, DiskOperationType operation) throws IllegalArgumentException,
-			IOException;
-	
+	public void startRequest(DBuffer buf, DiskOperationType operation)
+			throws IllegalArgumentException, IOException {
+		dBufferQ.add(buf);
+		operationQ.add(operation);
+	}
+
 	/*
 	 * Clear the contents of the disk by writing 0s to it
 	 */
@@ -78,7 +91,9 @@ public abstract class VirtualDisk implements IVirtualDisk {
 				_file.seek(seekLen);
 				_file.write(b, 0, Constants.BLOCK_SIZE);
 			} catch (Exception e) {
-				System.out.println("Error in format: WRITE operation failed at the device block " + i);
+				System.out
+						.println("Error in format: WRITE operation failed at the device block "
+								+ i);
 			}
 		}
 	}
@@ -90,6 +105,13 @@ public abstract class VirtualDisk implements IVirtualDisk {
 		for (int i = 0; i < bufSize; i++) {
 			b[i] = value;
 		}
+	}
+	public DBuffer getBuffer() {
+		return dBufferQ.poll();
+	}
+
+	public DiskOperationType getOperation() {
+		return operationQ.poll();
 	}
 
 	/*
@@ -114,5 +136,35 @@ public abstract class VirtualDisk implements IVirtualDisk {
 		int seekLen = buf.getBlockID() * Constants.BLOCK_SIZE;
 		_file.seek(seekLen);
 		_file.write(buf.getBuffer(), 0, Constants.BLOCK_SIZE);
+	}
+
+	public void run() {
+
+		while (true)// each time through the VDF should take one buffer and one
+					// operation to run
+		{
+			DBuffer DB = getBuffer();
+			DiskOperationType DOT = getOperation();
+
+			if (DOT.equals(DiskOperationType.READ)) {
+				try {
+					readBlock(DB);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else if (DOT.equals(DiskOperationType.WRITE)) {
+				try {
+					writeBlock(DB);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			DB.setValid();
+
+		}
+
 	}
 }
