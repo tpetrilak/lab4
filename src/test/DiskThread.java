@@ -1,14 +1,13 @@
 package test;
 
-import virtualdisk.MyVirtualDisk;
+import virtualdisk.VirtualDisk;
 import common.Constants;
-import dblockcache.MyDBuffer;
-import dblockcache.MyDBufferCache;
+import dblockcache.DBufferCache;
 
 public class DiskThread implements Runnable {
 
-    MyVirtualDisk myVD = new MyVirtualDisk();
-    MyDBufferCache myBufferCache = new MyDBufferCache(Constants.NUM_OF_CACHE_BLOCKS * Constants.BLOCK_SIZE);
+    VirtualDisk myVD = VirtualDisk.getInstance();
+    DBufferCache myBufferCache = new DBufferCache(Constants.NUM_OF_CACHE_BLOCKS * Constants.BLOCK_SIZE);
 
     @Override
     public void run() {

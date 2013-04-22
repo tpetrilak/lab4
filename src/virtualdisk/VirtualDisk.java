@@ -31,7 +31,7 @@ public class VirtualDisk implements IVirtualDisk, Runnable {
 	/*
 	 * VirtualDisk Constructors
 	 */
-	public VirtualDisk(String volName, boolean format)
+	private VirtualDisk(String volName, boolean format)
 			throws FileNotFoundException, IOException {
 
 		_volName = volName;
@@ -58,13 +58,31 @@ public class VirtualDisk implements IVirtualDisk, Runnable {
 		/* Other methods as required */
 	}
 
-	public VirtualDisk(boolean format) throws FileNotFoundException,
+	private VirtualDisk(boolean format) throws FileNotFoundException,
 			IOException {
 		this(Constants.vdiskName, format);
 	}
 
-	public VirtualDisk() throws FileNotFoundException, IOException {
+	private VirtualDisk() throws FileNotFoundException, IOException {
 		this(Constants.vdiskName, false);
+	}
+	
+	public static VirtualDisk getInstance()
+	{
+		if(instance==null)
+		{
+			try {
+				instance = new VirtualDisk();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return instance;
 	}
 	
 

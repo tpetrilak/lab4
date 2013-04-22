@@ -14,13 +14,18 @@ public class DBuffer {
 	private boolean isValid;
 	private boolean isClean;
 	private boolean isBusy;
-	private ByteBuffer buffer;
+//	private ByteBuffer buffer;
+	private byte[] myBuffer;
 	private VirtualDisk myDisk;
 	
 	public DBuffer(/*int id,*/ VirtualDisk disk) {
 		//blockId = id;
 		myDisk = disk;
-		buffer = ByteBuffer.allocate(Constants.BLOCK_SIZE);
+//		buffer = ByteBuffer.allocate(Constants.BLOCK_SIZE);
+		myBuffer = new byte[Constants.BLOCK_SIZE];
+		isClean = true;
+		isBusy = false;
+		isValid = true;
 	}
 
 	public DBuffer() {
@@ -135,6 +140,7 @@ public class DBuffer {
 	 * written.
 	 */
 	public int write(byte[] buffer, int startOffset, int count) {
+		isClean = false;
 		return 0;
 	}
 	
@@ -153,6 +159,6 @@ public class DBuffer {
 	
 	/* An upcall from VirtualDisk layer to fetch the buffer associated with DBuffer object*/
 	public byte[] getBuffer() {
-		return buffer.array();
+		return myBuffer;
 	} 
 }
