@@ -265,7 +265,7 @@ public class DFS {
 		for (int i = 0; i< myINodes.length; i++) {//needs to start from first DFID of something in data space
 			INode node = myINodes[i];
 //			System.out.println("going through inodes " + i);
-			if (node.getId().getDFileID() >= 0) {
+			if (node.getId().getDFileID() < 0) {
 				node.setId(i);
 				System.out.println("node return from getFreeINode's DFID is"+ node.getId());
 				return node;

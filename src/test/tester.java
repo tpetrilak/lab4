@@ -34,12 +34,15 @@ public class tester {
 		
 		dfs.write(dfid1, buffer, 0, 5);
 		System.out.println(dfid1.getDFileID());
+		
 		DFileID dfid2 = dfs.createDFile();
 		dfs.write(dfid2, buffer, 2, 3);
 		System.out.println(dfid2.getDFileID());
+		
 		DFileID dfid3 = dfs.createDFile();
 		dfs.write(dfid3, buffer, 1, 2);
 		System.out.println(dfid3.getDFileID());
+		
 		for (DFileID d : dfs.listAllDFiles()) {
 
 			int size = dfs.sizeDFile(d);
