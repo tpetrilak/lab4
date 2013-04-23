@@ -18,10 +18,11 @@ public class DBufferCache {
 	 * Constructor: allocates a cacheSize number of cache blocks, each
 	 * containing BLOCK-size bytes data, in memory
 	 */
-	public DBufferCache(int cacheSize) {
+	public DBufferCache(int cacheSize, boolean format) {
+		System.out.println("DBufferCache constructor called");
 		_cacheSize = cacheSize * Constants.BLOCK_SIZE;
 
-		myDisk = VirtualDisk.getInstance();
+		myDisk = VirtualDisk.getInstance(format);
 
 		myDBuffers = new LinkedList<DBuffer>();// create a list of MyDBuffers of
 												// size cacheSize
@@ -82,4 +83,5 @@ public class DBufferCache {
 			}
 		}
 	}
+	
 }
