@@ -29,7 +29,10 @@ public class DiskThread implements Runnable {
     
     public static void main(String[] args) {
 	
-	DFS dfs = new DFS(Constants.vdiskName, false);
+	DFS dfs = DFS.createDFS(Constants.vdiskName, false);
+	
+	(new DiskThread()).run();
+	
     }
 
 }

@@ -22,10 +22,13 @@ public class DFS {
 	private boolean _format;
 	private String _volName;
 	private int numINodeBlocks;
-//	private ArrayList<INode> iNodes;
-//	private int[] DFileIds;//index represents ID, 1 represents used, 0 represents free 
-	private Map<DFileID, INode> myINodes; //Integer will be a DFID, all INODES will be mapped to a specific DFID whether or not they are in use
-    private int[] availableBlocks;
+	// private ArrayList<INode> iNodes;
+	// private int[] DFileIds;//index represents ID, 1 represents used, 0
+	// represents free
+	private Map<DFileID, INode> myINodes; // Integer will be a DFID, all INODES
+	// will be mapped to a specific DFID
+	// whether or not they are in use
+	private int[] availableBlocks;
 	private static DFS instance = null;
 	private DBufferCache myBufferCache;
 
@@ -41,15 +44,17 @@ public class DFS {
 		_format = format;
 		numINodeBlocks = 26214;
 		myBufferCache = new DBufferCache(Constants.NUM_OF_CACHE_BLOCKS);
-//		DFileIds = new int[numINodes];
-//		for(int i = 0; i< numINodes; i++)
-//		{
-//			DFileIds[i] = 0;
-//		}
-//		iNodes = new ArrayList<INode>();
-		availableBlocks = new int[Constants.NUM_OF_BLOCKS-(numINodeBlocks+1)];//this should be the number of blocks int he data region
+		// DFileIds = new int[numINodes];
+		// for(int i = 0; i< numINodes; i++)
+		// {
+		// DFileIds[i] = 0;
+		// }
+		// iNodes = new ArrayList<INode>();
+		availableBlocks = new int[Constants.NUM_OF_BLOCKS
+				- (numINodeBlocks + 1)];// this should be the number of blocks
+		// int he data region
 		myINodes = new HashMap<DFileID, INode>();
-		init();//reads all inodes form disk into iNodes map
+		init();// reads all inodes form disk into iNodes map
 	}
 
 	private DFS(boolean format) {
@@ -67,13 +72,18 @@ public class DFS {
 		return instance;
 	}
 
+	public static DFS createDFS(String name, boolean format) {
+		DFS thing = new DFS(name, format);
+		return thing;
+	}
+
 	/*
 	 * Initialize all the necessary structures with sizes as specified in the
 	 * common/Constants.java
 	 */
 	public void init() {
 		try {
-			File disk = new File(_volName, "rws");
+			File disk = new File(_volName);
 			FileInputStream in = new FileInputStream(disk);
 			byte[] blockRead = new byte[1024];
 			in.read(blockRead);// block 0 is empty/ has metadata
@@ -87,25 +97,25 @@ public class DFS {
 							(j + 1) * 32);
 					int fileID = byteArrayToInt(node, 0);
 					int[] blockMap = new int[7];
-					int sizeOfFile = 0;
+					int fileSize = 0;
 					if (fileID > 0)// if this inode holds a reference to a DFID
 					{
 
 						for (int k = 0; k < 7; k++) {
-							int blockLocation = byteArrayToInt(node, 4 + (k * 4));
-							if(blockLocation >= 0)
-							{
+							int blockLocation = byteArrayToInt(node,
+									4 + (k * 4));
+							if (blockLocation >= 0) {
 								availableBlocks[blockLocation] = 1;
-								sizeOfFile+=Constants.BLOCK_SIZE;
+								fileSize+=Constants.BLOCK_SIZE;
 							}
 							blockMap[k] = blockLocation;
 						}
 					}
 					DFileID DFID = new DFileID(fileID);
 					INode currentNode = new INode(DFID, blockMap);
-					currentNode.setSize(sizeOfFile);
-//					iNodes.add(currentNode);
-//					DFileIds[fileID] = 1;
+					currentNode.setSize(fileSize);
+					// iNodes.add(currentNode);
+					// DFileIds[fileID] = 1;
 					myINodes.put(DFID, currentNode);
 				}
 
@@ -134,23 +144,21 @@ public class DFS {
 	 * identify the DFile
 	 */
 	public DFileID createDFile() {
-		INode available  =  getFreeINode();
-		if(available!= null)
-		{
+		INode available = getFreeINode();
+		if (available != null) {
 			return available.getId();
 		}
 		return null;
 	}
 
 	/* destroys the file specified by the DFileID */
-	public void destroyDFile(DFileID dFID) {//i have no idea what im doing
+	public void destroyDFile(DFileID dFID) {// i have no idea what im doing
 		INode toDestroy = myINodes.get(dFID);
 		int[] bMap = toDestroy.getBlockMap();
-		for(int i = 0; i< bMap.length; i++)
-		{
+		for (int i = 0; i < bMap.length; i++) {
 			availableBlocks[bMap[i]] = 0;
 		}
-		toDestroy.setId(-1);//tommy can change this later
+		toDestroy.setId(-1);// tommy can change this later
 	}
 
 	/*
@@ -161,28 +169,26 @@ public class DFS {
 
 		INode fileNode = myINodes.get(dFID);
 		int[] blockMap = fileNode.getBlockMap();
-		for(int i = 0; i < blockMap.length; i++)
-		{
-			
-			if(blockMap[i]>0 && count>=0)
-			{
+		for (int i = 0; i < blockMap.length; i++) {
+
+			if (blockMap[i] > 0 && count >= 0) {
 				DBuffer db = myBufferCache.getBlock(blockMap[i]);
-				
-				if(count>Constants.BLOCK_SIZE)
-				{
-					db.read(buffer, startOffset+1024*i, Constants.BLOCK_SIZE);
-					count-=Constants.BLOCK_SIZE;
+
+				if (count > Constants.BLOCK_SIZE) {
+					db.read(buffer, startOffset + 1024 * i,
+							Constants.BLOCK_SIZE);
+					count -= Constants.BLOCK_SIZE;
+				} else {
+					db.read(buffer, startOffset + 1024 * i, count);
+					count -= count;
 				}
-				else{
-					db.read(buffer, startOffset+1024*i, count);
-					count-=count;
-				}
-				
-				
-				
+
 			}
-			
+
 		}
+
+		int blockNum = startOffset / Constants.BLOCK_SIZE;
+
 		return 0;
 	}
 
@@ -209,20 +215,19 @@ public class DFS {
 	/* Write back all dirty blocks to the volume, and wait for completion. */
 	public void sync() {
 		myBufferCache.sync();
-		//TODO also have to sync back all of the inodes
+		// TODO also have to sync back all of the inodes
 	}
-	
-	public INode getFreeINode()
-	{
-		for(int i = 0; i< numINodeBlocks*32; i++)
-		{
+
+	public INode getFreeINode() {
+		for (int i = 0; i < numINodeBlocks * 32; i++) {
 			INode node = myINodes.get(i);
-			if(node.getId().getDFileID()<=0)
-			{
+			System.out.println("going through inodes " + i);
+			if (node.getId().getDFileID() <= 0) {
 				node.setId(i);
 				return node;
 			}
 		}
+		System.out.println("no free inodes");
 		return null;
 	}
 }
