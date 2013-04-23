@@ -40,5 +40,9 @@ public class INode {
     public int[] getBlockMap() {
 	return blockMap;
     }
+    public void setSize(int size)
+    {
+    	fileSize = size;
+    }
 
 }

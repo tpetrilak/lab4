@@ -87,6 +87,7 @@ public class DFS {
 							(j + 1) * 32);
 					int fileID = byteArrayToInt(node, 0);
 					int[] blockMap = new int[7];
+					int sizeOfFile = 0;
 					if (fileID > 0)// if this inode holds a reference to a DFID
 					{
 
@@ -95,12 +96,14 @@ public class DFS {
 							if(blockLocation >= 0)
 							{
 								availableBlocks[blockLocation] = 1;
+								sizeOfFile+=Constants.BLOCK_SIZE;
 							}
 							blockMap[k] = blockLocation;
 						}
 					}
 					DFileID DFID = new DFileID(fileID);
 					INode currentNode = new INode(DFID, blockMap);
+					currentNode.setSize(sizeOfFile);
 //					iNodes.add(currentNode);
 //					DFileIds[fileID] = 1;
 					myINodes.put(DFID, currentNode);
@@ -180,13 +183,6 @@ public class DFS {
 			}
 			
 		}
-		
-		int blockNum = startOffset/Constants.BLOCK_SIZE;
-		
-		
-		
-		
-		
 		return 0;
 	}
 
