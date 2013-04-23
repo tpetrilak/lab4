@@ -137,6 +137,7 @@ public class DBuffer {
 		return -1;
 	    }
 	}
+
 	myBuffer = buffer;
 
 	return count;

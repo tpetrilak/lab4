@@ -150,7 +150,7 @@ public class DFS {
 	for (int i = 0; i < bMap.length; i++) {
 	    availableBlocks[bMap[i]] = 0;
 	}
-	toDestroy.setId(-1);// tommy can change this later
+	toDestroy.setId(-1);
     }
 
     /*
