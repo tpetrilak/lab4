@@ -18,8 +18,8 @@ public class DBuffer {
     private byte[] myBuffer;
     private VirtualDisk myDisk;
 
-    public DBuffer(/* int id, */VirtualDisk disk) {
-	// blockId = id;
+    public DBuffer(int id, VirtualDisk disk) {
+	blockId = id;
 	myDisk = disk;
 	// buffer = ByteBuffer.allocate(Constants.BLOCK_SIZE);
 	myBuffer = new byte[Constants.BLOCK_SIZE];
@@ -38,13 +38,10 @@ public class DBuffer {
 	try {
 	    myDisk.startRequest(this, DiskOperationType.READ);
 	} catch (IllegalArgumentException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	} catch (FileNotFoundException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
 	waitValid();
@@ -56,13 +53,10 @@ public class DBuffer {
 	try {
 	    myDisk.startRequest(this, DiskOperationType.WRITE);
 	} catch (IllegalArgumentException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	} catch (FileNotFoundException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
 	waitValid();
@@ -135,7 +129,17 @@ public class DBuffer {
      * return -1, otherwise return number of bytes read.
      */
     public int read(byte[] buffer, int startOffset, int count) {
-	return 0;
+	isBusy = true;
+	if (!isValid) {
+	    try {
+		startFetch();
+	    } catch (Exception e) {
+		return -1;
+	    }
+	}
+	myBuffer = buffer;
+
+	return count;
     }
 
     /*
@@ -145,8 +149,14 @@ public class DBuffer {
      * written.
      */
     public int write(byte[] buffer, int startOffset, int count) {
+	isBusy = true;
+	try {
+	    startPush();
+	} catch (Exception e) {
+	    return -1;
+	}
 	isClean = false;
-	return 0;
+	return count;
     }
 
     /*
@@ -154,6 +164,9 @@ public class DBuffer {
      * operation
      */
     public void ioComplete() {
+	isClean = true;
+	isBusy = false;
+	isValid = true;
     }
 
     /*
