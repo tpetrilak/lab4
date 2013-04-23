@@ -1,5 +1,6 @@
 package test;
 
+import virtualdisk.VirtualDisk;
 import common.DFileID;
 
 import dfs.DFS;
@@ -30,6 +31,7 @@ public class tester {
 		System.out.println("initialized");
 		DFileID dfid1 = dfs.createDFile();
 		System.out.println("dfile created");
+		
 		byte[] buffer = { 5, 10, 23, 40, 45 };
 		
 		dfs.write(dfid1, buffer, 0, 5);
@@ -42,6 +44,8 @@ public class tester {
 		DFileID dfid3 = dfs.createDFile();
 		dfs.write(dfid3, buffer, 1, 2);
 		System.out.println("write 3 done: " + dfid3.getDFileID());
+		
+		VirtualDisk.getInstance(false).run();
 				
 		for (DFileID d : dfs.listAllDFiles()) {
 

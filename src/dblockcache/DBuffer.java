@@ -162,6 +162,7 @@ public class DBuffer {
 	 */
 	public int write(byte[] buffer, int startOffset, int count) {
 		isBusy = true;
+		myBuffer = buffer;
 		try {
 			startPush();
 		} catch (Exception e) {

@@ -105,7 +105,13 @@ public class VirtualDisk implements IVirtualDisk, Runnable {
 	    IOException {
 	dBufferQ.add(buf);
 	operationQ.add(operation);
-	notifyAll();
+
+	// System.out.print("[");
+	// for (int i = 0; i < buf.getBuffer().length - 1; i++) {
+	// System.out.print(buf.getBuffer()[i] + ", ");
+	// }
+	// System.out.println(buf.getBuffer()[buf.getBuffer().length - 1] +
+	// "]");
     }
 
     /*
@@ -177,23 +183,20 @@ public class VirtualDisk implements IVirtualDisk, Runnable {
 
 	    DiskOperationType DOT = getOperation();
 
-	    while (DOT != null) {
-
-		if (DOT.equals(DiskOperationType.READ)) {
-		    try {
-			readBlock(DB);
-		    } catch (IOException e) {
-			e.printStackTrace();
-		    }
-		} else if (DOT.equals(DiskOperationType.WRITE)) {
-		    try {
-			writeBlock(DB);
-		    } catch (IOException e) {
-			e.printStackTrace();
-		    }
+	    if (DOT.equals(DiskOperationType.READ)) {
+		try {
+		    readBlock(DB);
+		} catch (IOException e) {
+		    e.printStackTrace();
 		}
-		DB.setValid();
+	    } else if (DOT.equals(DiskOperationType.WRITE)) {
+		try {
+		    writeBlock(DB);
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
 	    }
+	    DB.setValid();
 
 	}
 
