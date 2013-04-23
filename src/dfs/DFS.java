@@ -202,7 +202,8 @@ public class DFS {
 
 	/* returns the size in bytes of the file indicated by DFileID. */
 	public int sizeDFile(DFileID dFID) {
-		return 0;
+		INode in = myINodes.get(dFID);
+		return in.getFileSize();
 	}
 
 	/*

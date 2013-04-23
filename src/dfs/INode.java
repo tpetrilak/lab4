@@ -44,5 +44,9 @@ public class INode {
     {
     	fileSize = size;
     }
+    public int getFileSize()
+    {
+    	return fileSize;
+    }
 
 }
