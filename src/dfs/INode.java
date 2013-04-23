@@ -37,5 +37,9 @@ public class INode {
 	{
 		fileId = new DFileID(id);
 	}
+	public int[] getBlockMap()
+	{
+		return blockMap;
+	}
 
 }
