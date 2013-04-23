@@ -27,6 +27,16 @@ public class DBuffer {
 		isBusy = false;
 		isValid = true;
 	}
+	
+	public DBuffer(VirtualDisk disk) {
+	    	blockId = -1;
+		myDisk = disk;
+		// buffer = ByteBuffer.allocate(Constants.BLOCK_SIZE);
+		myBuffer = new byte[Constants.BLOCK_SIZE];
+		isClean = true;
+		isBusy = false;
+		isValid = true;
+	}
 
 	public DBuffer() {
 		blockId = 0;
@@ -68,7 +78,7 @@ public class DBuffer {
 	}
 
 	/* Wait until the buffer has valid data, i.e., wait for fetch to complete */
-	public boolean waitValid() {
+	public synchronized boolean waitValid() {
 		while (!isValid) {
 			try {
 				wait();
@@ -81,6 +91,7 @@ public class DBuffer {
 
 	public void setValid() {
 		isValid = true;
+		notifyAll();
 	}
 
 	/*
@@ -95,7 +106,7 @@ public class DBuffer {
 	 * Wait until the buffer is clean, i.e., wait until a push operation
 	 * completes
 	 */
-	public boolean waitClean() {
+	public synchronized boolean waitClean() {
 		while (!isClean) {
 			try {
 				wait();
@@ -154,7 +165,8 @@ public class DBuffer {
 		try {
 			startPush();
 		} catch (Exception e) {
-			return -1;
+		    e.printStackTrace();
+		    return -1;
 		}
 		isClean = false;
 		return count;

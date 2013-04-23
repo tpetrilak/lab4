@@ -101,10 +101,11 @@ public class VirtualDisk implements IVirtualDisk, Runnable {
 	 * buf is an DBuffer object that needs to be read/write from/to the volume.
 	 * -- operation is either READ or WRITE
 	 */
-	public void startRequest(DBuffer buf, DiskOperationType operation)
+	public synchronized void startRequest(DBuffer buf, DiskOperationType operation)
 			throws IllegalArgumentException, IOException {
 		dBufferQ.add(buf);
 		operationQ.add(operation);
+		notifyAll();
 	}
 
 	/*
@@ -167,26 +168,25 @@ public class VirtualDisk implements IVirtualDisk, Runnable {
 		_file.write(buf.getBuffer(), 0, Constants.BLOCK_SIZE);
 	}
 
-	public void run() {
+	public synchronized void run() {
 
 		while (true)// each time through the VDF should take one buffer and one
 		// operation to run
 		{
 			DBuffer DB = getBuffer();
+			
 			DiskOperationType DOT = getOperation();
 
 			if (DOT.equals(DiskOperationType.READ)) {
 				try {
 					readBlock(DB);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} else if (DOT.equals(DiskOperationType.WRITE)) {
 				try {
 					writeBlock(DB);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

@@ -25,7 +25,10 @@ public class tester {
 		// DFileID DFID = new DFileID(700);
 		// myDFS.write(dFID, buffer, startOffset, count)
 		// myDFS.read(dFID, buffer, startOffset, count)
-		System.out.println("hey");
+		
+		DiskThread dt = new DiskThread();
+		
+		Thread t = new Thread(dt);
 
 		DFS dfs = DFS.getInstance();
 		System.out.println("initialized");

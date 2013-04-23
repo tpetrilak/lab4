@@ -23,11 +23,13 @@ public class DBufferCache {
 		_cacheSize = cacheSize * Constants.BLOCK_SIZE;
 
 		myDisk = VirtualDisk.getInstance(format);
+				
+		myDisk.run();
 
 		myDBuffers = new LinkedList<DBuffer>();// create a list of MyDBuffers of
 												// size cacheSize
 		for (int i = 0; i < cacheSize; i++) {
-			myDBuffers.add(new DBuffer());
+			myDBuffers.add(new DBuffer(myDisk));
 		}
 	}
 
