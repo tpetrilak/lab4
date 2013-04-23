@@ -69,7 +69,7 @@ public class DBuffer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		waitValid();
+		//waitValid();
 	}
 
 	/* Check whether the buffer has valid data */
