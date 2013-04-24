@@ -55,8 +55,7 @@ public class DFS {
 	// DFileIds[i] = 0;
 	// }
 	// iNodes = new ArrayList<INode>();
-	availableBlocks = new int[Constants.NUM_OF_BLOCKS
-		- (numINodeBlocks + 1)];// this should be the number of blocks
+	availableBlocks = new int[Constants.NUM_OF_BLOCKS - (numINodeBlocks + 1)];// this should be the number of blocks
 	// int he data region
 	// myINodes = new HashMap<DFileID, INode>();
 	myINodes = new INode[Constants.MAX_DFILES];
@@ -219,6 +218,7 @@ public class DFS {
 		DBuffer db = myBufferCache.getBlock(blockMap[i]);
 		dbufct++;
 		System.out.println(dbufct);
+		db.setBlockID(dFID.getDFileID());
 		if (count > Constants.BLOCK_SIZE) {
 		    db.write(buffer, startOffset + 1024 * i,
 			    Constants.BLOCK_SIZE);

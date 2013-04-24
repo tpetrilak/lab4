@@ -170,8 +170,12 @@ public class VirtualDisk implements IVirtualDisk, Runnable {
      */
     private void writeBlock(DBuffer buf) throws IOException {
 	int seekLen = buf.getBlockID() * Constants.BLOCK_SIZE;
+	System.out.println(buf.getBlockID());
+	System.out.println("*** WRITING TO VIRTUAL DISK ***");
+	int bufSize = buf.getBuffer().length;
 	_file.seek(seekLen);
-	_file.write(buf.getBuffer(), 0, Constants.BLOCK_SIZE);
+	_file.write(buf.getBuffer(), 0, bufSize);
+
     }
 
     public synchronized void run() {
@@ -183,21 +187,23 @@ public class VirtualDisk implements IVirtualDisk, Runnable {
 
 	    DiskOperationType DOT = getOperation();
 
-	    if (DOT.equals(DiskOperationType.READ)) {
-		try {
-		    readBlock(DB);
-		} catch (IOException e) {
-		    e.printStackTrace();
+	    if (DOT != null) {
+		if (DOT.equals(DiskOperationType.READ)) {
+		    try {
+			readBlock(DB);
+		    } catch (IOException e) {
+			e.printStackTrace();
+		    }
+		} else if (DOT.equals(DiskOperationType.WRITE)) {
+		    try {
+			writeBlock(DB);
+		    } catch (IOException e) {
+			e.printStackTrace();
+		    }
 		}
-	    } else if (DOT.equals(DiskOperationType.WRITE)) {
-		try {
-		    writeBlock(DB);
-		} catch (IOException e) {
-		    e.printStackTrace();
-		}
-	    }
-	    DB.setValid();
 
+		DB.setValid();
+	    }
 	}
 
     }

@@ -91,7 +91,7 @@ public class DBuffer {
 
 	public void setValid() {
 		isValid = true;
-		notifyAll();
+//		notifyAll();
 	}
 
 	/*
